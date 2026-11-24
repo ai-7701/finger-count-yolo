@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Finger Count — real-time hand finger counting with YOLO11</title>
+<meta name="description" content="Point a webcam at your hand and it counts the raised fingers, 0 to 5. YOLO11n classifier running entirely in your browser." />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> finger-count</div>
+    <nav>
+      <a href="#demo">Demo</a>
+      <a href="#how">How it works</a>
+      <a href="#results">Results</a>
+      <a href="#limits">Limits</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero wrap">
+  <h1>Count fingers in real time,<br /><span class="accent">entirely in your browser</span></h1>
+  <p class="lede">
+    A YOLO11 classifier trained on 5,615 real photographs. MediaPipe finds your hand,
+    the classifier counts the raised fingers. No server, no upload — the model runs on your device.
+  </p>
+  <div class="stats">
+    <div class="stat"><b id="stat-acc">92.85%</b><span>top-1 accuracy</span></div>
+    <div class="stat"><b>5,615</b><span>training photos</span></div>
+    <div class="stat"><b>6</b><span>classes (0–5)</span></div>
+    <div class="stat"><b id="stat-ms">1.5 ms</b><span>inference (T4)</span></div>
+  </div>
+</section>
+
+<section id="demo" class="wrap demo">
+  <div class="stage">
+    <video id="video" playsinline muted></video>
+    <img id="photo" alt="uploaded hand" hidden />
+    <canvas id="overlay"></canvas>
+    <div id="placeholder" class="placeholder">
+      <p>Camera is off</p>
+      <span>Start the camera, or upload a photo of one hand.</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="count">
+      <span id="count-value">–</span>
+      <small id="count-label">fingers</small>
+    </div>
+    <div class="confbar"><div id="conf-fill"></div></div>
+    <p class="conf" id="conf-text">waiting for a hand…</p>
+
+    <div class="actions">
+      <button id="btn-cam" class="primary">Start camera</button>
+      <label class="file">
+        <input type="file" id="file" accept="image/*" hidden />
+        Upload a photo
+      </label>
+    </div>
+    <p class="hint" id="status">Hold one hand up, fingers clearly separated.</p>
+    <p class="fps" id="fps"></p>
+  </div>
+</section>
+
+<section id="how" class="wrap how">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step"><span class="num">1</span><h3>Find the hand</h3><p>MediaPipe's hand landmarker locates 21 points on your hand, every frame.</p></div>
+    <div class="step"><span class="num">2</span><h3>Crop and resize</h3><p>The bounding box around those points is cropped with 25% padding and resized to 224×224.</p></div>
+    <div class="step"><span class="num">3</span><h3>Classify</h3><p>A YOLO11n classifier outputs six scores; the highest one is the finger count.</p></div>
+  </div>
+</section>
+
+<section id="results" class="wrap results">
+  <h2>Results</h2>
+  <p class="sub">Measured on 839 held-out photographs that were never used in training.</p>
+  <table>
+    <tbody>
+      <tr><th>Top-1 accuracy</th><td>92.85%</td></tr>
+      <tr><th>Top-5 accuracy</th><td>99.88%</td></tr>
+      <tr><th>Validation images</th><td>839 (15% split)</td></tr>
+      <tr><th>Model</th><td>YOLO11n-cls · 1.53 M parameters · 3.2 MB</td></tr>
+      <tr><th>Training</th><td>40 epochs · Kaggle T4 GPU · 1.5 hours</td></tr>
+      <tr><th>Export</th><td>ONNX opset 12 · 5.9 MB</td></tr>
+    </tbody>
+  </table>
+  <p class="sub">The model rarely confuses two neighbouring counts; when it does, 5 is read as 4 (11 of 147 cases) and 4 as 3 (6 of 142).</p>
+</section>
+
+<section id="limits" class="wrap limits">
+  <h2>What it does not do</h2>
+  <ul>
+    <li><b>One hand only.</b> Two hands in frame and it counts whichever it finds first.</li>
+    <li><b>Raised fingers, not gestures.</b> A thumbs-up reads as 1; it is not sign language.</li>
+    <li><b>Needs decent light.</b> Very dim rooms defeat the hand detector before the classifier ever runs.</li>
+    <li><b>Best with fingers apart.</b> A tight fist or overlapping fingers can be read one count off.</li>
+  </ul>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Trained on the Finger Count Cleaned Dataset (CC0). Code MIT licensed.</p>
+    <p class="stamp">build v1.0 · 2026-11-24</p>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

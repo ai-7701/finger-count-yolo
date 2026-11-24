@@ -1,0 +1,6 @@
+ultralytics>=8.3
+torch>=2.2
+onnx>=1.16
+onnxruntime>=1.18
+pillow
+numpy
